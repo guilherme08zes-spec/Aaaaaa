@@ -983,11 +983,15 @@ async function carregarPedidos() {
         });
 
         await carregarProdutos();
-      } catch (erro) {
-        console.error(erro);
-        mostrarAvisoCatalogo("Erro ao iniciar a loja. Confira a conexão e o código.");
-      }
-    })();
+      
+    
+} catch (erro) {
+  console.error("ERRO AO INICIAR TRIPPREÇO:", erro);
+  mostrarAvisoCatalogo(
+    "Erro ao iniciar: " + (erro.message || String(erro))
+  );
+}
+
 
   </script>
 </body>
