@@ -434,7 +434,7 @@ letter-spacing: .3px;
 </head>
 <body>
   <header>
-  <div class="logo">TRI<span>PREÇO</span></div>  <nav class="menu">
+  <div class="logo">TRIPREÇO</div>
     <a href="#produtos">Produtos</a>
     <a href="#carrinho">Carrinho (<span id="quantidade-carrinho">0</span>)</a>
     <a href="#admin">Administração</a>
@@ -442,9 +442,9 @@ letter-spacing: .3px;
 </header>
 
   <section class="banner">
-    <span class="subtitulo-banner">TRIPREÇO • OFERTAS ESPECIAIS</span>
-    <h1>Tudo o que você procura, em um só lugar.</h1>
-    <p>Encontre ofertas para o seu dia a dia e aproveite oportunidades incríveis.</p>
+    <span class="subtitulo-banner">BEM-VINDO À TRIPREÇO</span>
+    <h1>tudo oque você procura, aqui! </h1>
+    <p>Encontre seus produtos favoritos em um só lugar.</p>
     <a href="#produtos" class="btn-banner">Explorar produtos</a>
   </section>
 
@@ -464,6 +464,29 @@ letter-spacing: .3px;
 
     
 <section class="painel" id="admin">
+
+  <details class="acesso-restrito">
+    <summary>Área restrita</summary>
+
+    <h2>Painel TRIPREÇO</h2>
+    <p>Entre com sua conta de administrador.</p>
+
+    <div id="area-login" class="login">
+      <label for="email-admin">E-mail</label>
+      <input id="email-admin" type="email"
+             autocomplete="username" placeholder="Seu e-mail">
+
+      <label for="senha-admin">Senha</label>
+      <input id="senha-admin" type="password"
+             autocomplete="current-password" placeholder="Sua senha">
+
+      <button type="button" class="btn-vermelho"
+              id="botao-login" onclick="entrarAdmin()">
+        ENTRAR
+      </button>
+
+      <p id="mensagem-login" class="mensagem" role="status"></p>
+    </div>
 
   <h2 style="color:#e5232e">Painel TriPreço</h2>
 
