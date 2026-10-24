@@ -846,15 +846,13 @@ async function carregarProdutos() {
         const preco = document.createElement("div");
         preco.className = "preco";
         preco.textContent = dinheiro(produto.preco);
-        const estoque = document.createElement("p");
-        estoque.className = "estoque";
-        estoque.textContent = produto.estoque > 0 ? "Disponíveis: " + produto.estoque : "Esgotado";
+       
         const botao = document.createElement("button");
         botao.className = "btn-vermelho";
         botao.textContent = "ADICIONAR";
         botao.disabled = produto.estoque <= 0;
         botao.addEventListener("click", () => adicionarCarrinho(produto.id));
-        card.append(imagem, nome, descricao, preco, estoque, botao);
+        card.append(imagem, nome, descricao, preço, botao);
         lista.appendChild(card);
       });
     }
