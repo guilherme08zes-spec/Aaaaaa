@@ -878,11 +878,9 @@ letter-spacing: .3px;
         .eq("id", produto.id);
 
       if (error) {
-        alert("Não foi possível alterar o produto. Confira as permissões.");
-        console.error(error);
-      } else {
-        await carregarProdutos();
-        await carregarProdutosAdmin();
+  console.error("Erro ao carregar produtos:", error);
+  mensagem.textContent = "Erro ao carregar: " + error.message;
+  return;
       }
     });
 
