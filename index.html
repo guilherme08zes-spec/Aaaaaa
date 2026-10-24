@@ -905,7 +905,8 @@ botaoAtivar.addEventListener("click", async () => {
     const botaoExcluir = document.createElement("button");
     botaoExcluir.className = "btn-vermelho";
     botaoExcluir.textContent = "EXCLUIR PRODUTO";
-
+    botaoExcluir.type = "button";
+    
     botaoExcluir.addEventListener("click", async () => {
       if (!adminConfirmado) return;
 
