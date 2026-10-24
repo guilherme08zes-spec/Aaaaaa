@@ -1040,7 +1040,7 @@ if (adminConfirmado) {
     error || data
   );
 }
-} // Fecha a função verificarAdmin()
+}
 
 async function cadastrarProduto() {
   const resultado = document.getElementById("resultado-painel");
@@ -1048,14 +1048,6 @@ async function cadastrarProduto() {
   if (!supabaseClient || !adminConfirmado) {
     resultado.textContent =
       "Entre com a conta de administrador antes de cadastrar.";
-    return;
-  }
-
-  // O restante do código original continua aqui!
-
-  
-  
-    resultado.textContent = "Entre com a conta de administrador antes de cadastrar.";
     return;
   }
 
@@ -1125,31 +1117,30 @@ async function cadastrarProduto() {
 
     const { error } = await supabaseClient
       .from("produtos")
-.insert({
-  nome,
-  descricao,
-  categoria: document.getElementById("novo-categoria").value,
-  preco,
-  estoque,
-  imagem_url: imagemUrl,
-  ativo: true
-});
+      .insert({
+        nome,
+        descricao,
+        categoria: document.getElementById("novo-categoria").value,
+        preco,
+        estoque,
+        imagem_url: imagemUrl,
+        ativo: true
+      });
 
     if (error) throw error;
 
     resultado.textContent = "Produto cadastrado com sucesso!";
 
     [
-  "novo-nome",
-  "novo-descricao",
-  "novo-preco",
-  "novo-estoque"
-].forEach(id => {
-  document.getElementById(id).value = "";
-});
+      "novo-nome",
+      "novo-descricao",
+      "novo-preco",
+      "novo-estoque"
+    ].forEach(id => {
+      document.getElementById(id).value = "";
+    });
 
-document.getElementById("novo-categoria").value = "Utilidades";
-
+    document.getElementById("novo-categoria").value = "Utilidades";
     document.getElementById("nova-imagem-arquivo").value = "";
 
     await carregarProdutos();
@@ -1162,7 +1153,7 @@ document.getElementById("novo-categoria").value = "Utilidades";
     botao.disabled = false;
   }
 }
-
+ 
 
     
 async function carregarProdutosAdmin() {
