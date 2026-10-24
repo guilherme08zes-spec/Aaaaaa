@@ -830,9 +830,13 @@ letter-spacing: .3px;
     .order("criado_em", { ascending: false });
 
   if (error) {
-    mensagem.textContent = "Erro ao carregar produtos. Confira as permissões.";
-    console.error(error);
-    return;
+  alert(
+    "Erro: " + error.message +
+    "\nCódigo: " + (error.code || "não informado") +
+    "\nDetalhes: " + (error.details || "nenhum") +
+    "\nDica: " + (error.hint || "nenhuma")
+  );
+  console.error("Erro ao alterar produto:", error);
   }
 
   if (!data || data.length === 0) {
