@@ -1062,26 +1062,29 @@ async function cadastrarProduto() {
     const { error } = await supabaseClient
       .from("produtos")
       .insert({
-        nome,
-        descricao,
-        preco,
-        estoque,
-        imagem_url: imagemUrl,
-        ativo: true
-      });
+  nome,
+  descricao,
+  categoria: document.getElementById("novo-categoria").value,
+  preco,
+  estoque,
+  imagem_url: imagemUrl,
+  ativo: true
+});
 
     if (error) throw error;
 
     resultado.textContent = "Produto cadastrado com sucesso!";
 
     [
-      "novo-nome",
-      "novo-descricao",
-      "novo-preco",
-      "novo-estoque"
-    ].forEach(id => {
-      document.getElementById(id).value = "";
-    });
+  "novo-nome",
+  "novo-descricao",
+  "novo-preco",
+  "novo-estoque"
+].forEach(id => {
+  document.getElementById(id).value = "";
+});
+
+document.getElementById("novo-categoria").value = "Utilidades";
 
     document.getElementById("nova-imagem-arquivo").value = "";
 
