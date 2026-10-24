@@ -864,25 +864,43 @@ letter-spacing: .3px;
       ? "DESATIVAR PRODUTO"
       : "REATIVAR PRODUTO";
 
-    botaoAtivar.addEventListener("click", async () => {
-      if (!adminConfirmado) return;
+    
+botaoAtivar.addEventListener("click", async () => {
+  if (!adminConfirmado) return;
 
-      const acao = produto.ativo ? "desativar" : "reativar";
-      if (!confirm("Deseja " + acao + " o produto " + produto.nome + "?")) return;
+  const acao = produto.ativo ? "desativar" : "reativar";
 
-      botaoAtivar.disabled = true;
+  if (!confirm("Deseja " + acao + " o produto " + produto.nome + "?")) {
+    return;
+  }
 
-      const { error } = await supabaseClient
-        .from("produtos")
-        .update({ ativo: !produto.ativo })
-        .eq("id", produto.id);
+  botaoAtivar.disabled = true;
+  mensagem.textContent = "Atualizando produto...";
 
-      if (error) {
-  console.error("Erro ao carregar produtos:", error);
-  mensagem.textContent = "Erro ao carregar: " + error.message;
-  return;
-      }
-    });
+  const { error } = await supabaseClient
+    .from("produtos")
+    .update({ ativo: !produto.ativo })
+    .eq("id", produto.id);
+
+  if (error) {
+    console.error("Erro ao alterar produto:", error);
+
+    alert(
+      "Não foi possível alterar o produto.\n" +
+      error.message +
+      "\nCódigo: " + (error.code || "não informado")
+    );
+
+    botaoAtivar.disabled = false;
+    mensagem.textContent = "Não foi possível atualizar.";
+    return;
+  }
+
+  mensagem.textContent = "Produto atualizado com sucesso!";
+  await carregarProdutos();
+  await carregarProdutosAdmin();
+});
+
 
     const botaoExcluir = document.createElement("button");
     botaoExcluir.className = "btn-vermelho";
