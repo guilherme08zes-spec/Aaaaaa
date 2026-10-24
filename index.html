@@ -462,7 +462,7 @@ letter-spacing: .3px;
       <p class="mensagem" id="mensagem-compra" role="status"></p>
     </section>
 
-    <section class="painel" id="admin">
+    < class="painel" id="admin">
       <h2 style="color:#e5232e">Painel TripPreço</h2>
       <p>Entre com a conta de administrador para cadastrar produtos reais.</p>
       <div id="area-login" class="login">
@@ -492,6 +492,18 @@ letter-spacing: .3px;
         
 <p class="mensagem" id="resultado-painel" role="status"></p>
 
+<hr>
+
+<h3>Gerenciar produtos</h3>
+<p>Desative produtos para ocultá-los da loja ou exclua cadastros.</p>
+
+<button class="btn-escuro" onclick="carregarProdutosAdmin()">
+  ATUALIZAR LISTA
+</button>
+
+<p id="mensagem-gerenciar" class="mensagem" role="status"></p>
+<div id="lista-produtos-admin"></div>
+          
 <hr>
 
 <h3>Histórico de pedidos</h3>
@@ -738,6 +750,7 @@ letter-spacing: .3px;
         document.getElementById("area-login").classList.add("escondido");
         document.getElementById("area-admin").classList.remove("escondido");
         document.getElementById("admin-logado").textContent = "Conectado como " + session.user.email;
+        carregarProdutosAdmin();
       } else {
         document.getElementById("area-login").classList.remove("escondido");
         document.getElementById("area-admin").classList.add("escondido");
@@ -799,7 +812,115 @@ letter-spacing: .3px;
       await carregarProdutos();
     }
 
-    
+    async function carregarProdutosAdmin() {
+  const lista = document.getElementById("lista-produtos-admin");
+  const mensagem = document.getElementById("mensagem-gerenciar");
+
+  if (!supabaseClient || !adminConfirmado) {
+    mensagem.textContent = "Entre como administrador.";
+    return;
+  }
+
+  mensagem.textContent = "Carregando produtos...";
+  lista.replaceChildren();
+
+  const { data, error } = await supabaseClient
+    .from("produtos")
+    .select("id,nome,preco,estoque,ativo")
+    .order("criado_em", { ascending: false });
+
+  if (error) {
+    mensagem.textContent = "Erro ao carregar produtos. Confira as permissões.";
+    console.error(error);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    mensagem.textContent = "Nenhum produto cadastrado.";
+    return;
+  }
+
+  mensagem.textContent = "";
+
+  data.forEach(produto => {
+    const card = document.createElement("div");
+    card.style.cssText =
+      "border:1px solid var(--borda);border-radius:10px;padding:12px;margin-top:12px";
+
+    const nome = document.createElement("p");
+    nome.textContent =
+      produto.nome + " — " + dinheiro(produto.preco);
+
+    const estado = document.createElement("p");
+    estado.textContent = produto.ativo ? "Ativo na loja" : "Desativado";
+
+    const botaoAtivar = document.createElement("button");
+    botaoAtivar.className = "btn-escuro";
+    botaoAtivar.textContent = produto.ativo
+      ? "DESATIVAR PRODUTO"
+      : "REATIVAR PRODUTO";
+
+    botaoAtivar.addEventListener("click", async () => {
+      if (!adminConfirmado) return;
+
+      const acao = produto.ativo ? "desativar" : "reativar";
+      if (!confirm("Deseja " + acao + " o produto " + produto.nome + "?")) return;
+
+      botaoAtivar.disabled = true;
+
+      const { error } = await supabaseClient
+        .from("produtos")
+        .update({ ativo: !produto.ativo })
+        .eq("id", produto.id);
+
+      if (error) {
+        alert("Não foi possível alterar o produto. Confira as permissões.");
+        console.error(error);
+      } else {
+        await carregarProdutos();
+        await carregarProdutosAdmin();
+      }
+    });
+
+    const botaoExcluir = document.createElement("button");
+    botaoExcluir.className = "btn-vermelho";
+    botaoExcluir.textContent = "EXCLUIR PRODUTO";
+
+    botaoExcluir.addEventListener("click", async () => {
+      if (!adminConfirmado) return;
+
+      const confirmou = confirm(
+        "ATENÇÃO: deseja excluir permanentemente " +
+        produto.nome + "? Essa ação não pode ser desfeita."
+      );
+
+      if (!confirmou) return;
+
+      botaoExcluir.disabled = true;
+
+      const { error } = await supabaseClient
+        .from("produtos")
+        .delete()
+        .eq("id", produto.id);
+
+      if (error) {
+        alert(
+          "Não foi possível excluir. Pode haver restrições de segurança ou pedidos vinculados a esse produto."
+        );
+        console.error(error);
+        botaoExcluir.disabled = false;
+        return;
+      }
+
+      await carregarProdutos();
+      await carregarProdutosAdmin();
+      alert("Produto excluído.");
+    });
+
+    card.append(nome, estado, botaoAtivar, botaoExcluir);
+    lista.appendChild(card);
+  });
+}
 
 async function finalizarCompra() {
   const mensagem = document.getElementById("mensagem-compra");
