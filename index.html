@@ -506,6 +506,9 @@ letter-spacing: .3px;
 
     <div id="area-login" class="login">
       <label for="email-admin">E-mail</label>
+<input id="email-admin" type="email"
+       autocomplete="username" placeholder="Seu e-mail">
+      <label for="email-admin">E-mail</label>
       <input id="email-admin" type="email"
              autocomplete="username" placeholder="Seu e-mail">
 
@@ -939,15 +942,20 @@ async function verificarAdmin() {
   sessaoAtual = session;
   adminConfirmado = false;
 
-  if (!session) {
-    document.getElementById("area-login")
-      .classList.remove("escondido");
+  
+if (!session) {
+  const areaLogin = document.getElementById("area-login");
+  const areaAdmin = document.getElementById("area-admin");
 
-    document.getElementById("area-admin")
-      .classList.add("escondido");
+  areaLogin.classList.remove("escondido");
+  areaLogin.hidden = false;
 
-    return;
-  }
+  areaAdmin.classList.add("escondido");
+  areaAdmin.hidden = true;
+
+  return;
+}
+
 
   const { data, error } =
     await supabaseClient.rpc("is_admin");
@@ -958,34 +966,36 @@ async function verificarAdmin() {
     usuario: session.user.id
   });
 
-  if (!error && data === true) {
-    adminConfirmado = true;
-  }
-
-  if (adminConfirmado) {
-    document.getElementById("area-login")
-      .classList.add("escondido");
-
-    document.getElementById("area-admin")
-      .classList.remove("escondido");
-
-    document.getElementById("admin-logado").textContent =
-      "Conectado como " + session.user.email;
-
-    await carregarProdutosAdmin();
-  } else {
-    document.getElementById("area-login")
-      .classList.remove("escondido");
-
-    document.getElementById("area-admin")
-      .classList.add("escondido");
-
-    console.error(
-      "A conta não foi reconhecida como administradora:",
-      error || data
-    );
-  }
+  
+if (!error && data === true) {
+  adminConfirmado = true;
 }
+
+if (adminConfirmado) {
+  document.getElementById("area-login").classList.add("escondido");
+  document.getElementById("area-login").hidden = true;
+
+  document.getElementById("area-admin").classList.remove("escondido");
+  document.getElementById("area-admin").hidden = false;
+
+  document.getElementById("admin-logado").textContent =
+    "Conectado como " + session.user.email;
+
+  await carregarProdutosAdmin();
+
+} else {
+  document.getElementById("area-login").classList.remove("escondido");
+  document.getElementById("area-login").hidden = false;
+
+  document.getElementById("area-admin").classList.add("escondido");
+  document.getElementById("area-admin").hidden = true;
+
+  console.error(
+    "A conta não foi reconhecida como administradora:",
+    error || data
+  );
+}
+
 
     
 
