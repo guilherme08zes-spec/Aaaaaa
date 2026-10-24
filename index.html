@@ -1036,16 +1036,13 @@ if (adminConfirmado) {
   document.getElementById("area-admin").classList.add("escondido");
   document.getElementById("area-admin").hidden = true;
 
-  console.error(
+    console.error(
     "A conta não foi reconhecida como administradora:",
     error || data
   );
 }
+} // Fecha a função verificarAdmin()
 
-
-    
-
-    
 async function cadastrarProduto() {
   const resultado = document.getElementById("resultado-painel");
 
