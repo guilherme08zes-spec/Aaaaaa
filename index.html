@@ -695,7 +695,7 @@ letter-spacing: .3px;
       mostrarAvisoCatalogo("Carregando produtos...");
       const {data, error} = await supabaseClient
         .from("produtos")
-        .select("id,nome,descricao,preco,estoque,imagem_url,ativo")
+        .select("id,nome,descricao,categoria,preco,estoque,imagem_url,ativo")
         .eq("ativo", true)
         .order("criado_em", {ascending:false});
 
