@@ -873,6 +873,47 @@ async function finalizarCompra() {
     mensagem.textContent = "Erro de conexão ao registrar o pedido.";
   }
 }
+    
+async function atualizarStatusPedido(id, novoStatus) {
+  const mensagem = document.getElementById("mensagem-pedidos");
+
+  const statusPermitidos = [
+    "aguardando_confirmacao",
+    "confirmado",
+    "em_preparacao",
+    "enviado",
+    "concluido",
+    "cancelado"
+  ];
+
+  if (!adminConfirmado) {
+    mensagem.textContent = "Entre como administrador para alterar pedidos.";
+    return;
+  }
+
+  if (!statusPermitidos.includes(novoStatus)) {
+    mensagem.textContent = "Status inválido.";
+    return;
+  }
+
+  mensagem.textContent = "Atualizando pedido...";
+
+  try {
+    const { error } = await supabaseClient
+      .from("pedidos")
+      .update({ status: novoStatus })
+      .eq("id", id);
+
+    if (error) throw error;
+
+    mensagem.textContent = "Status do pedido atualizado!";
+    await carregarPedidos();
+  } catch (erro) {
+    console.error("Erro ao atualizar pedido:", erro);
+    mensagem.textContent =
+      "Não foi possível atualizar o pedido. Confira as permissões.";
+  }
+}
 
 async function carregarPedidos() {
   const lista = document.getElementById("lista-pedidos");
@@ -944,11 +985,50 @@ async function carregarPedidos() {
         cancelado: "Cancelado"
       };
 
-      status.textContent = "Status: " +
-        (nomesStatus[pedido.status] || pedido.status);
-      card.appendChild(status);
+  
+status.textContent = "Status: " +
+  (nomesStatus[pedido.status] || pedido.status);
+card.appendChild(status);
 
-      lista.appendChild(card);
+const seletor = document.createElement("select");
+seletor.style.width = "100%";
+seletor.style.padding = "12px";
+seletor.style.marginTop = "8px";
+seletor.style.borderRadius = "8px";
+seletor.style.border = "1px solid var(--borda)";
+
+const opcoesStatus = [
+  ["aguardando_confirmacao", "Aguardando confirmação"],
+  ["confirmado", "Confirmado"],
+  ["em_preparacao", "Em preparação"],
+  ["enviado", "Enviado"],
+  ["concluido", "Concluído"],
+  ["cancelado", "Cancelado"]
+];
+
+opcoesStatus.forEach(([valor, nome]) => {
+  const opcao = document.createElement("option");
+  opcao.value = valor;
+  opcao.textContent = nome;
+  opcao.selected = pedido.status === valor;
+  seletor.appendChild(opcao);
+});
+
+const botaoStatus = document.createElement("button");
+botaoStatus.className = "btn-vermelho";
+botaoStatus.textContent = "SALVAR STATUS";
+
+botaoStatus.addEventListener("click", async () => {
+  botaoStatus.disabled = true;
+  await atualizarStatusPedido(pedido.id, seletor.value);
+  botaoStatus.disabled = false;
+});
+
+card.appendChild(seletor);
+card.appendChild(botaoStatus);
+
+lista.appendChild(card);
+
     });
   } catch (erro) {
     console.error("Erro ao carregar pedidos:", erro);
@@ -992,6 +1072,14 @@ async function carregarPedidos() {
   );
 }
 })();
+    
+console.log("TripPreço: JavaScript carregado");
+console.log("Supabase:", typeof window.supabase);
+console.log("Função entrarAdmin:", typeof entrarAdmin);
+console.log("Função cadastrarProduto:", typeof cadastrarProduto);
+console.log("Função finalizarCompra:", typeof finalizarCompra);
+console.log("Função carregarPedidos:", typeof carregarPedidos);
+
   </script>
 </body>
 </html>
