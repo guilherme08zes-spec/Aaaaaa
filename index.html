@@ -843,8 +843,8 @@ async function carregarProdutos() {
         nome.textContent = produto.nome;
         const descricao = document.createElement("p");
         descricao.textContent = produto.descricao;
-        const preco = document.createElement("div");
-        preco.className = "preco";
+        const preço = document.createElement("div");
+        preco.className = "preço";
         preco.textContent = dinheiro(produto.preco);
        
         const botao = document.createElement("button");
