@@ -548,7 +548,7 @@ letter-spacing: .3px;
         id="novo-nome"
         maxlength="80"
         placeholder="Ex.: Fone Bluetooth"
-      >
+      
 
       <label for="novo-descricao">Descrição</label>
       <textarea
@@ -741,10 +741,27 @@ letter-spacing: .3px;
   .toLowerCase();
       lista.replaceChildren();
 
-      const encontrados = produtos.filter(p =>
-  (p.nome || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(busca) ||
-  (p.descricao || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().includes(busca)
-);
+      const encontrados = produtos.filter(p => {
+  const texto = `${p.nome || ""} ${p.descricao || ""}`
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  const categoria = (p.categoria || "Utilidades")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  const filtro = categoriaSelecionada
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+
+  const correspondeCategoria =
+    categoriaSelecionada === "Todas" || categoria === filtro;
+
+  return correspondeCategoria && texto.includes(busca);
+});
 
       if (encontrados.length === 0) {
         if (produtos.length > 0) {
