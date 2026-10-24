@@ -817,41 +817,71 @@ letter-spacing: .3px;
     }
 
     async function entrarAdmin() {
-      const resultado = document.getElementById("resultado-painel");
-      const email = document.getElementById("email-admin").value.trim();
-      const senha = document.getElementById("senha-admin").value;
-      const botao = document.getElementById("botao-login");
-      resultado.textContent = "";
+  const mensagem = document.getElementById("mensagem-login");
+  const email = document.getElementById("email-admin").value.trim();
+  const senha = document.getElementById("senha-admin").value;
+  const botao = document.getElementById("botao-login");
 
-      if (!supabaseClient) {
-        resultado.textContent = "Configure primeiro a chave anon public no código.";
-        return;
-      }
-      if (!email || !senha) {
-        resultado.textContent = "Digite seu e-mail e sua senha.";
-        return;
-      }
+  mensagem.textContent = "";
 
-      botao.disabled = true;
-      botao.textContent = "ENTRANDO...";
-      const {data, error} = await supabaseClient.auth.signInWithPassword({email, password:senha});
-      botao.disabled = false;
-      botao.textContent = "ENTRAR";
+  if (!supabaseClient) {
+    mensagem.textContent = "A configuração do Supabase está incompleta.";
+    return;
+  }
 
-      if (error) {
-        resultado.textContent = "Não foi possível entrar. Confira o e-mail e a senha.";
-        console.error(error);
-        return;
-      }
-      sessaoAtual = data.session;
-      await verificarAdmin();
-      if (!adminConfirmado) {
-        await supabaseClient.auth.signOut();
-        resultado.textContent = "Esta conta não tem permissão de administrador.";
-        return;
-      }
-      document.getElementById("senha-admin").value = "";
-      resultado.textContent = "Login realizado com sucesso.";
+  if (!email || !senha) {
+    mensagem.textContent = "Digite seu e-mail e sua senha.";
+    return;
+  }
+
+  botao.disabled = true;
+  botao.textContent = "ENTRANDO...";
+
+  try {
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: senha
+      });
+
+    if (error) {
+      mensagem.textContent = "E-mail ou senha incorretos.";
+      return;
+    }
+
+    sessaoAtual = data.session;
+
+    await verificarAdmin();
+
+    if (!adminConfirmado) {
+      await supabaseClient.auth.signOut();
+      sessaoAtual = null;
+
+      mensagem.textContent =
+        "Esta conta não tem permissão de administrador.";
+
+      return;
+    }
+
+    // Esconde o login após confirmar o administrador
+    document.getElementById("area-login").hidden = true;
+
+    // Mostra a área administrativa
+    const areaAdmin = document.getElementById("area-admin");
+    areaAdmin.classList.remove("escondido");
+    areaAdmin.hidden = false;
+
+    document.getElementById("senha-admin").value = "";
+    mensagem.textContent = "Login realizado com sucesso.";
+
+  } catch (erro) {
+    console.error(erro);
+    mensagem.textContent = "Ocorreu um erro ao entrar. Tente novamente.";
+
+  } finally {
+    botao.disabled = false;
+    botao.textContent = "ENTRAR";
+  }
     }
 
     
