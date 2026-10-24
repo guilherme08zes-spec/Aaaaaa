@@ -545,7 +545,15 @@ letter-spacing: .3px;
         maxlength="1000"
         placeholder="Descreva o produto"
       ></textarea>
-
+<label for="novo-categoria">Categoria</label>
+<select id="novo-categoria" required>
+  <option value="Eletrônicos">Eletrônicos</option>
+  <option value="Roupas">Roupas</option>
+  <option value="Casa e Cozinha">Casa e Cozinha</option>
+  <option value="Beleza">Beleza</option>
+  <option value="Acessórios">Acessórios</option>
+  <option value="Utilidades" selected>Utilidades</option>
+</select>
       <label for="novo-preco">Preço em reais</label>
       <input
         id="novo-preco"
