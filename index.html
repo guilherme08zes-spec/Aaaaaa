@@ -857,52 +857,116 @@ async function verificarAdmin() {
 
     
 
-    async function cadastrarProduto() {
-      const resultado = document.getElementById("resultado-painel");
-      if (!supabaseClient || !adminConfirmado) {
-        resultado.textContent = "Entre com a conta de administrador antes de cadastrar.";
-        return;
-      }
+    
+async function cadastrarProduto() {
+  const resultado = document.getElementById("resultado-painel");
 
-      const nome = document.getElementById("novo-nome").value.trim();
-      const descricao = document.getElementById("novo-descricao").value.trim();
-      const precoTexto = document.getElementById("novo-preco").value;
-      const estoqueTexto = document.getElementById("novo-estoque").value;
-      const imagem = document.getElementById("nova-imagem").value.trim();
-      const preco = Number(precoTexto);
-      const estoque = Number(estoqueTexto);
+  if (!supabaseClient || !adminConfirmado) {
+    resultado.textContent = "Entre com a conta de administrador antes de cadastrar.";
+    return;
+  }
 
-      if (!nome || precoTexto === "" || !Number.isFinite(preco) || preco <= 0 ||
-          estoqueTexto === "" || !Number.isInteger(estoque) || estoque < 0) {
-        resultado.textContent = "Confira o nome, o preço e a quantidade em estoque.";
-        return;
-      }
-      if (imagem && !/^https?:\/\//i.test(imagem)) {
-        resultado.textContent = "A URL da imagem deve começar com https:// ou http://.";
-        return;
-      }
+  const nome = document.getElementById("novo-nome").value.trim();
+  const descricao = document.getElementById("novo-descricao").value.trim();
+  const precoTexto = document.getElementById("novo-preco").value;
+  const estoqueTexto = document.getElementById("novo-estoque").value;
+  const arquivo = document.getElementById("nova-imagem-arquivo").files[0];
 
-      const botao = document.getElementById("botao-cadastrar");
-      botao.disabled = true;
-      botao.textContent = "SALVANDO...";
-      const {error} = await supabaseClient.from("produtos").insert({
-        nome, descricao, preco, estoque, imagem_url: imagem || null, ativo: true
-      });
-      botao.disabled = false;
-      botao.textContent = "CADASTRAR PRODUTO";
+  const preco = Number(precoTexto);
+  const estoque = Number(estoqueTexto);
 
-      if (error) {
-        console.error(error);
-        resultado.textContent = "Não foi possível salvar. Confira a conexão e as permissões do administrador.";
-        return;
-      }
+  if (
+    !nome ||
+    precoTexto === "" ||
+    !Number.isFinite(preco) ||
+    preco <= 0 ||
+    estoqueTexto === "" ||
+    !Number.isInteger(estoque) ||
+    estoque < 0
+  ) {
+    resultado.textContent = "Confira o nome, o preço e o estoque.";
+    return;
+  }
 
-      resultado.textContent = "Produto salvo no banco com sucesso!";
-      ["novo-nome","novo-descricao","novo-preco","novo-estoque","nova-imagem"].forEach(id => {
-        document.getElementById(id).value = "";
-      });
-      await carregarProdutos();
+  if (arquivo && !arquivo.type.startsWith("image/")) {
+    resultado.textContent = "Escolha um arquivo de imagem válido.";
+    return;
+  }
+
+  if (arquivo && arquivo.size > 5 * 1024 * 1024) {
+    resultado.textContent = "A imagem deve ter no máximo 5 MB.";
+    return;
+  }
+
+  const botao = document.getElementById("botao-cadastrar");
+  botao.disabled = true;
+
+  try {
+    let imagemUrl = null;
+
+    if (arquivo) {
+      resultado.textContent = "Enviando foto...";
+
+      const extensao = arquivo.name.split(".").pop().toLowerCase();
+      const nomeArquivo = `${Date.now()}-${crypto.randomUUID()}.${extensao}`;
+
+      const { error: erroUpload } = await supabaseClient
+        .storage
+        .from("fotos-produtos")
+        .upload(nomeArquivo, arquivo, {
+          upsert: false,
+          contentType: arquivo.type
+        });
+
+      if (erroUpload) throw erroUpload;
+
+      const { data } = supabaseClient
+        .storage
+        .from("fotos-produtos")
+        .getPublicUrl(nomeArquivo);
+
+      imagemUrl = data.publicUrl;
     }
+
+    resultado.textContent = "Salvando produto...";
+
+    const { error } = await supabaseClient
+      .from("produtos")
+      .insert({
+        nome,
+        descricao,
+        preco,
+        estoque,
+        imagem_url: imagemUrl,
+        ativo: true
+      });
+
+    if (error) throw error;
+
+    resultado.textContent = "Produto cadastrado com sucesso!";
+
+    [
+      "novo-nome",
+      "novo-descricao",
+      "novo-preco",
+      "novo-estoque"
+    ].forEach(id => {
+      document.getElementById(id).value = "";
+    });
+
+    document.getElementById("nova-imagem-arquivo").value = "";
+
+    await carregarProdutos();
+    await carregarProdutosAdmin();
+
+  } catch (erro) {
+    console.error("Erro ao cadastrar:", erro);
+    resultado.textContent = "Erro ao cadastrar: " + erro.message;
+  } finally {
+    botao.disabled = false;
+  }
+}
+
 
     
 async function carregarProdutosAdmin() {
