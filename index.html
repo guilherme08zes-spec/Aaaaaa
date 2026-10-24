@@ -1061,7 +1061,7 @@ async function cadastrarProduto() {
 
     const { error } = await supabaseClient
       .from("produtos")
-      .insert({
+.insert({
   nome,
   descricao,
   categoria: document.getElementById("novo-categoria").value,
