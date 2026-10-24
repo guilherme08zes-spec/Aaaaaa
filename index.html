@@ -1043,22 +1043,17 @@ if (adminConfirmado) {
 } // Fecha a função verificarAdmin()
 
 async function cadastrarProduto() {
-  alert("1 - Entrou na função");
-
   const resultado = document.getElementById("resultado-painel");
-  alert("2 - Encontrou o campo de resultado");
-
-  alert("Supabase: " + Boolean(supabaseClient));
-  alert("Administrador confirmado: " + adminConfirmado);
 
   if (!supabaseClient || !adminConfirmado) {
     resultado.textContent =
       "Entre com a conta de administrador antes de cadastrar.";
-    alert("3 - Parou na verificação de administrador");
     return;
   }
 
-  alert("4 - Passou pela verificação de administrador");
+  // O restante do código original continua aqui!
+
+  
   
     resultado.textContent = "Entre com a conta de administrador antes de cadastrar.";
     return;
