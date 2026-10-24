@@ -715,37 +715,71 @@ letter-spacing: .3px;
       document.getElementById("estado-catalogo").textContent = texto;
     }
 
-    async function carregarProdutos() {
-      if (!supabaseClient) {
-        mostrarAvisoCatalogo("Configure a chave anon public no código para carregar os produtos.");
-        return;
-      }
-      mostrarAvisoCatalogo("Carregando produtos...");
-      const {data, error} = await supabaseClient
-        .from("produtos")
-        .select("id,nome,descricao,categoria,preco,estoque,imagem_url,ativo")
-        .eq("ativo", true)
-        .order("criado_em", {ascending:false});
+    
+async function carregarProdutos() {
+  if (!supabaseClient) {
+    mostrarAvisoCatalogo(
+      "A configuração do Supabase está incompleta."
+    );
+    return;
+  }
 
-      if (error) {
-        console.error(error);
-        mostrarAvisoCatalogo("Não foi possível carregar os produtos. Confira a conexão e as políticas do Supabase.");
-        return;
-      }
+  mostrarAvisoCatalogo("Carregando produtos...");
 
-      produtos = (data || []).map(p => ({
-        id: p.id,
-        nome: p.nome || "",
-        categoria: p.categoria || "Utilidades",
-        descricao: p.descricao || "",
-        preco: Number(p.preco),
-        estoque: Number(p.estoque),
-        imagem_url: p.imagem_url || ""
-      }));
-      mostrarAvisoCatalogo(produtos.length ? "" : "Ainda não há produtos cadastrados.");
-      mostrarProdutos();
-      atualizarCarrinhoComCatalogo();
+  try {
+    const consulta = supabaseClient
+      .from("produtos")
+      .select("id,nome,descricao,categoria,preco,estoque,imagem_url,ativo")
+      .eq("ativo", true)
+      .order("criado_em", { ascending: false });
+
+    const resultado = await Promise.race([
+      consulta,
+      new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Tempo esgotado ao consultar o Supabase.")),
+          12000
+        )
+      )
+    ]);
+
+    const { data, error } = resultado;
+
+    if (error) {
+      console.error("Erro ao carregar produtos:", error);
+
+      mostrarAvisoCatalogo(
+        "Não foi possível carregar os produtos. Confira a conexão e as políticas do Supabase."
+      );
+      return;
     }
+
+    produtos = (data || []).map(p => ({
+      id: p.id,
+      nome: p.nome || "",
+      categoria: p.categoria || "Utilidades",
+      descricao: p.descricao || "",
+      preco: Number(p.preco),
+      estoque: Number(p.estoque),
+      imagem_url: p.imagem_url || ""
+    }));
+
+    mostrarAvisoCatalogo(
+      produtos.length ? "" : "Ainda não há produtos cadastrados."
+    );
+
+    mostrarProdutos();
+    atualizarCarrinhoComCatalogo();
+
+  } catch (erro) {
+    console.error("Falha inesperada ao carregar produtos:", erro);
+
+    mostrarAvisoCatalogo(
+      "O catálogo demorou para responder. Verifique sua conexão e tente novamente."
+    );
+  }
+}
+
 
     function mostrarProdutos() {
       const lista = document.getElementById("lista-produtos");
