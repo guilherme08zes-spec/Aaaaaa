@@ -843,17 +843,18 @@ async function carregarProdutos() {
         nome.textContent = produto.nome;
         const descricao = document.createElement("p");
         descricao.textContent = produto.descricao;
-        const preço = document.createElement("div");
-        preco.className = "preço";
-        preco.textContent = dinheiro(produto.preco);
-       
-        const botao = document.createElement("button");
-        botao.className = "btn-vermelho";
-        botao.textContent = "ADICIONAR";
-        botao.disabled = produto.estoque <= 0;
-        botao.addEventListener("click", () => adicionarCarrinho(produto.id));
-        card.append(imagem, nome, descricao, preço, botao);
-        lista.appendChild(card);
+        const preco = document.createElement("div");
+preco.className = "preco";
+preco.textContent = dinheiro(produto.preco);
+
+const botao = document.createElement("button");
+botao.className = "btn-vermelho";
+botao.textContent = "ADICIONAR";
+botao.disabled = produto.estoque <= 0;
+botao.addEventListener("click", () => adicionarCarrinho(produto.id));
+
+card.append(imagem, nome, descricao, preco, botao);
+lista.appendChild(card);
       });
     }
 
