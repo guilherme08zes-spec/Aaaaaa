@@ -731,39 +731,63 @@ letter-spacing: .3px;
       resultado.textContent = "Login realizado com sucesso.";
     }
 
-    async function verificarAdmin() {
-      const {data: {session}} = await supabaseClient.auth.getSession();
-      sessaoAtual = session;
-      adminConfirmado = false;
+    
+async function verificarAdmin() {
+  const { data: { session } } =
+    await supabaseClient.auth.getSession();
 
-      if (!session) {
-        document.getElementById("area-login").classList.remove("escondido");
-        document.getElementById("area-admin").classList.add("escondido");
-        return;
-      }
+  sessaoAtual = session;
+  adminConfirmado = false;
 
-      // A tentativa de inserir não é usada para verificar permissão; consultamos a função protegida do banco.
-      const {data, error} = await supabaseClient.rpc("is_admin");
-      if (!error && data === true) adminConfirmado = true;
+  if (!session) {
+    document.getElementById("area-login")
+      .classList.remove("escondido");
 
-      if (adminConfirmado) {
-        document.getElementById("area-login").classList.add("escondido");
-        document.getElementById("area-admin").classList.remove("escondido");
-        document.getElementById("admin-logado").textContent = "Conectado como " + session.user.email;
-        carregarProdutosAdmin();
-      } else {
-        document.getElementById("area-login").classList.remove("escondido");
-        document.getElementById("area-admin").classList.add("escondido");
-      }
-    }
+    document.getElementById("area-admin")
+      .classList.add("escondido");
 
-    async function sairAdmin() {
-      if (supabaseClient) await supabaseClient.auth.signOut();
-      sessaoAtual = null;
-      adminConfirmado = false;
-      document.getElementById("resultado-painel").textContent = "Você saiu da administração.";
-      await verificarAdmin();
-    }
+    return;
+  }
+
+  const { data, error } =
+    await supabaseClient.rpc("is_admin");
+
+  console.log("Verificação de administrador:", {
+    data,
+    error,
+    usuario: session.user.id
+  });
+
+  if (!error && data === true) {
+    adminConfirmado = true;
+  }
+
+  if (adminConfirmado) {
+    document.getElementById("area-login")
+      .classList.add("escondido");
+
+    document.getElementById("area-admin")
+      .classList.remove("escondido");
+
+    document.getElementById("admin-logado").textContent =
+      "Conectado como " + session.user.email;
+
+    await carregarProdutosAdmin();
+  } else {
+    document.getElementById("area-login")
+      .classList.remove("escondido");
+
+    document.getElementById("area-admin")
+      .classList.add("escondido");
+
+    console.error(
+      "A conta não foi reconhecida como administradora:",
+      error || data
+    );
+  }
+}
+
+    
 
     async function cadastrarProduto() {
       const resultado = document.getElementById("resultado-painel");
